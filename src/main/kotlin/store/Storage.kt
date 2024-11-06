@@ -6,11 +6,13 @@ import java.text.DecimalFormat
 class Storage {
     private val productLedger = ArrayList<ProductInfo>()
 
-    fun getProducts(): ArrayList<ProductInfo> {
+    fun openStorage(): ArrayList<ProductInfo> {
         val rawProducts = Reader().readProducts()
         splitProductInfo(rawProducts)
         return productLedger
     }
+
+    fun getLedger(): ArrayList<ProductInfo> = productLedger
 
     private fun splitProductInfo(rawProducts: ArrayList<String>) {
         for (i in 1..rawProducts.lastIndex) {
@@ -39,12 +41,7 @@ class Storage {
         return priceFormat.format(priceNumber)
     }
 
-    private fun processQuantity(quantity: String): String {
-        if (quantity.trim().toInt() == 0) {
-            return "재고 없음"
-        }
-        return "%s개".format(quantity.trim().toInt().toString())
-    }
+    private fun processQuantity(quantity: String) = quantity.trim().toInt()
 
     private fun processPromotion(promotions: String): String {
         if (promotions == "null") {
@@ -69,7 +66,7 @@ class Storage {
         val normalProduct = ProductInfo(
             product.name,
             product.price,
-            "재고 없음",
+            0,
             ""
         )
         return normalProduct

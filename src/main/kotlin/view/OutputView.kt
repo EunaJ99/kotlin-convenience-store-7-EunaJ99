@@ -16,7 +16,11 @@ class OutputView {
     }
 
     private fun printSingleProductInfo(productInfo: ProductInfo): String {
-        val formatted = "- %s %s원 %s %s".format(productInfo.name, productInfo.price, productInfo.quantity, productInfo.promotion)
+        var printableQuantity = "%d개".format(productInfo.quantity)
+        if (productInfo.quantity == 0) {
+            printableQuantity = "재고 없음"
+        }
+        val formatted = "- %s %s원 %s %s".format(productInfo.name, productInfo.price, printableQuantity, productInfo.promotion)
         return formatted
     }
 

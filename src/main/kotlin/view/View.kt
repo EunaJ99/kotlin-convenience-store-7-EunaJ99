@@ -9,7 +9,14 @@ class View {
     private val controller = Controller(this)
 
     fun start() {
-        controller.runBusiness()
+        while (true) {
+            try {
+                controller.runBusiness()
+                break
+            } catch (e: IllegalArgumentException) {
+                println(e.message)
+            }
+        }
     }
 
     fun welcomeCustomer(productLedger: ArrayList<ProductInfo>): String {
