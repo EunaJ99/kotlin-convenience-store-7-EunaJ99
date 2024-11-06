@@ -17,6 +17,7 @@ class Storage {
             val info = rawProducts[i].split(",")
             val productInfo = processInfo(info)
             productLedger.add(productInfo)
+            checkNormalProducts()
         }
     }
 
@@ -38,13 +39,40 @@ class Storage {
         return priceFormat.format(priceNumber)
     }
 
-    private fun processQuantity(quantity: String) = quantity.trim().toInt()
+    private fun processQuantity(quantity: String): String {
+        if (quantity.trim().toInt() == 0) {
+            return "재고 없음"
+        }
+        return "%s개".format(quantity.trim().toInt().toString())
+    }
 
     private fun processPromotion(promotions: String): String {
         if (promotions == "null") {
             return ""
         }
         return promotions
+    }
+
+    private fun checkNormalProducts() {
+        val index = productLedger.lastIndex
+        if (index == 0) {
+            return
+        }
+        if (productLedger[index].name != productLedger[index - 1].name && productLedger[index - 1].promotion != "") {
+            val temp = productLedger[index]
+            productLedger[index] = getNormalProducts(productLedger[index - 1])
+            productLedger.add(temp)
+        }
+    }
+
+    private fun getNormalProducts(product: ProductInfo): ProductInfo {
+        val normalProduct = ProductInfo(
+            product.name,
+            product.price,
+            "재고 없음",
+            ""
+        )
+        return normalProduct
     }
 
 }

@@ -16,7 +16,7 @@ class OutputView {
     }
 
     private fun printSingleProductInfo(productInfo: ProductInfo): String {
-        val formatted = "- %s %s원 %d개 %s".format(productInfo.name, productInfo.price, productInfo.quantity, productInfo.promotion)
+        val formatted = "- %s %s원 %s %s".format(productInfo.name, productInfo.price, productInfo.quantity, productInfo.promotion)
         return formatted
     }
 
