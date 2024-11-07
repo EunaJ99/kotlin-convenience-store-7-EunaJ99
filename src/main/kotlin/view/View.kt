@@ -9,14 +9,7 @@ class View {
     private val controller = Controller(this)
 
     fun start() {
-        while (true) {
-            try {
-                controller.runBusiness()
-                break
-            } catch (e: IllegalArgumentException) {
-                println(e.message)
-            }
-        }
+        controller.runBusiness()
     }
 
     fun welcomeCustomer(productLedger: ArrayList<ProductInfo>): String {
@@ -24,5 +17,15 @@ class View {
         outputView.printProducts(productLedger)
         val customerSelection = inputView.readItem()
         return customerSelection
+    }
+
+    fun giveawayOffer(name: String, quantity: Int): String {
+        val answer = inputView.readPromotionFill(name, quantity)
+        return answer
+    }
+
+    fun notFreeNotice(name: String, excess: Int): String {
+        val answer = inputView.readIsRegular(name, excess)
+        return answer
     }
 }

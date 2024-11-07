@@ -1,5 +1,7 @@
 package tools
 
+import store.RequiredProduct
+
 class Validator {
     fun isSelectionFormatted(selection: String) {
         val selectionRule = """\[([가-힣a-zA-Z]+)-([0-9]+)]""".toRegex()
@@ -8,9 +10,11 @@ class Validator {
         }
     }
 
-    fun isProductExists(productNumbers: List<Int>) {
-        if (productNumbers.contains(-1)) {
-            throw IllegalArgumentException(ErrorMessage.PRODUCT_NOT_FOUND.getMessage())
+    fun isProductExists(requirements: ArrayList<RequiredProduct>) {
+        requirements.forEach {
+            if (it.productNumber < 0) {
+                throw IllegalArgumentException(ErrorMessage.PRODUCT_NOT_FOUND.getMessage())
+            }
         }
     }
 
@@ -21,7 +25,8 @@ class Validator {
     }
 
     fun answerCheck(answer: String) {
-        if (answer != "Y" && answer != "N") {
+        val acceptedAnswer = listOf("Y", "N", "y", "n")
+        if (!acceptedAnswer.contains(answer)) {
             throw IllegalArgumentException(ErrorMessage.INPUT_SOMETHING_WRONG.getMessage())
         }
     }

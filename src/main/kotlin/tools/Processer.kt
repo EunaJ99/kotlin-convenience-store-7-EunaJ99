@@ -3,7 +3,7 @@ package tools
 import store.RequiredProduct
 
 class Processer {
-    fun chopRequirementInput(input: String): List<String> = input.split(",")
+    fun chopInputWithComma(input: String): List<String> = input.split(",")
 
     fun processRequirement(input: String): ArrayList<RequiredProduct> {
         val requirement = ArrayList<RequiredProduct>()
@@ -17,7 +17,7 @@ class Processer {
 
     private fun splitSingleRequest(input: String): RequiredProduct {
         val elements = input.split("-")
-        val request = RequiredProduct(elements[0], elements[1].toInt())
+        val request = RequiredProduct(elements[0], elements[1].toInt(), -1)
         return request
     }
 }

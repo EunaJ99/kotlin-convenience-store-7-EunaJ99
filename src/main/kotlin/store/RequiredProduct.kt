@@ -2,5 +2,6 @@ package store
 
 data class RequiredProduct(
     val name: String,
-    val quantity: Int
+    var quantity: Int,
+    var productNumber: Int
 )

@@ -6,10 +6,9 @@ import java.text.DecimalFormat
 class Storage {
     private val productLedger = ArrayList<ProductInfo>()
 
-    fun openStorage(): ArrayList<ProductInfo> {
+    fun openStorage() {
         val rawProducts = Reader().readProducts()
         splitProductInfo(rawProducts)
-        return productLedger
     }
 
     fun getLedger(): ArrayList<ProductInfo> = productLedger
@@ -72,4 +71,29 @@ class Storage {
         return normalProduct
     }
 
+    fun findMultipleProducts(product: ArrayList<RequiredProduct>): ArrayList<RequiredProduct> {
+        product.forEach {
+            it.productNumber = findProduct(it.name)
+        }
+        return product
+    }
+
+    private fun findProduct(name: String): Int {
+        var index = -1
+        for (i in 0..productLedger.lastIndex) {
+            if (productLedger[i].name == name) {
+                index = i
+                return index
+            }
+        }
+        return index
+    }
+
+    fun findQuantity(index: Int): Int {
+        val quantity = productLedger[index].quantity
+        if (index != productLedger.lastIndex && productLedger[index].name == productLedger[index + 1].name) {
+            return quantity + productLedger[index + 1].quantity
+        }
+        return quantity
+    }
 }

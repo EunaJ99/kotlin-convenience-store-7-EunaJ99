@@ -1,39 +1,124 @@
 package controller
 
-import store.Employee
-import store.RequiredProduct
-import store.Storage
+import store.*
 import tools.Processer
 import tools.Validator
 import view.View
 
 class Controller(private val view: View) {
     private val storage = Storage()
+    private val promotionSystem = PromotionSystem()
     private val validator = Validator()
     private val processer = Processer()
-    private val employee = Employee(storage)
 
     fun runBusiness() {
-        val selection = openStore()
-        validateSelection(selection)
+        val products = openShop()
+        val counter = Counter(products.size)
+        promotion(products, counter)
     }
 
-    private fun openStore(): String {
-        val ledger = storage.openStorage()
+    private fun openShop(): ArrayList<RequiredProduct> {
+        var products: ArrayList<RequiredProduct>
+        while (true) {
+            try {
+                products = getOrder()
+                break
+            } catch (e: IllegalArgumentException) {
+                println(e.message)
+            }
+        }
+        return products
+    }
+
+    private fun getOrder(): ArrayList<RequiredProduct> {
+        storage.openStorage()
+        val ledger = storage.getLedger()
         val selection = view.welcomeCustomer(ledger)
-        return selection
+        val products = understandInput(selection)
+        val productFound = checkStocks(products)
+        return productFound
     }
 
-    private fun validateSelection(selection: String) {
-        val chopSelection = processer.chopRequirementInput(selection)
+    private fun understandInput(selection: String): ArrayList<RequiredProduct> {
+        val chopSelection = processer.chopInputWithComma(selection)
         chopSelection.forEach {
             validator.isSelectionFormatted(it)
         }
         val selectedProducts = processer.processRequirement(selection)
-        val productNumbers = employee.findMultipleProducts(selectedProducts)
-        validator.isProductExists(productNumbers)
-        for (i in 0..selectedProducts.lastIndex) {
-            validator.isQuantityEnough(employee.findQuantity(productNumbers[i]), selectedProducts[i].quantity)
+        return selectedProducts
+    }
+
+    private fun checkStocks(requirements: ArrayList<RequiredProduct>): ArrayList<RequiredProduct> {
+        val foundRequirements = storage.findMultipleProducts(requirements)
+        validator.isProductExists(foundRequirements)
+        for (i in 0..requirements.lastIndex) {
+            validator.isQuantityEnough(storage.findQuantity(foundRequirements[i].productNumber), requirements[i].quantity)
         }
+        return foundRequirements
+    }
+
+    private fun promotion(request: ArrayList<RequiredProduct>, counter: Counter) {
+        promotionSystem.setPromotions()
+        for (i in 0..request.lastIndex) {
+            request[i].quantity += giveawayOffer(request[i])
+            val freesAndNots = promoCoverage(request[i])
+            counter.promotionEnroll(request[i].quantity, freesAndNots.first, freesAndNots.second, i)
+        }
+    }
+
+    private fun giveawayOffer(request: RequiredProduct): Int {
+        val ledger = storage.getLedger()
+        val toRequire = promotionSystem.giveawayRequest(ledger[request.productNumber].promotion, request.quantity, ledger[request.productNumber].quantity)
+        if (toRequire == 0 || !acceptOrNot(ledger[request.productNumber].name, toRequire)) {
+            return 0
+        }
+        return toRequire
+    }
+
+    private fun acceptOrNot(name: String, toRequire: Int): Boolean {
+        var answer: Boolean
+        while (true) {
+            try {
+                answer = askOffer(name, toRequire)
+                break
+            } catch (e: IllegalArgumentException) {
+                println(e.message)
+            }
+        }
+        return answer
+    }
+
+    private fun askOffer(name: String, toRequire: Int): Boolean {
+        val answer = view.giveawayOffer(name, toRequire)
+        validator.answerCheck(answer)
+        return answer == "Y" || answer == "y"
+    }
+
+    private fun promoCoverage(required: RequiredProduct): Pair<Int, Int> {
+        val product = storage.getLedger()[required.productNumber]
+        val freesAndNots = promotionSystem.checkPromotionCoverage(product.promotion, required.quantity, product.quantity)
+        if (freesAndNots.second != 0 && !regularOrNot(required.name, freesAndNots.second)) {
+            return Pair(freesAndNots.first, -freesAndNots.second)
+        }
+        return freesAndNots
+    }
+
+    private fun regularOrNot(name: String, excess: Int): Boolean {
+        var answer: Boolean
+        while (true) {
+            try {
+                answer = askNotFree(name, excess)
+                break
+            } catch (e: IllegalArgumentException) {
+                println(e.message)
+            }
+        }
+        return answer
+    }
+
+    private fun askNotFree(name: String, excess: Int): Boolean {
+        val answer = view.notFreeNotice(name, excess)
+        validator.answerCheck(answer)
+        return answer == "Y" || answer == "y"
     }
 }
