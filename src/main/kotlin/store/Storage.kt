@@ -1,5 +1,6 @@
 package store
 
+import tools.Processer
 import tools.Reader
 import java.text.DecimalFormat
 
@@ -25,7 +26,7 @@ class Storage {
     private fun processInfo(info: List<String>): ProductInfo {
         val productInfo = ProductInfo(
             processName(info[0]),
-            processPrice(info[1]),
+            Processer().processPrice(info[1]),
             processQuantity(info[2]),
             processPromotion(info[3])
         )
@@ -33,12 +34,6 @@ class Storage {
     }
 
     private fun processName(name: String) = name.trim()
-
-    private fun processPrice(price: String): String {
-        val priceNumber = price.toInt()
-        val priceFormat = DecimalFormat("#,###")
-        return priceFormat.format(priceNumber)
-    }
 
     private fun processQuantity(quantity: String) = quantity.trim().toInt()
 
