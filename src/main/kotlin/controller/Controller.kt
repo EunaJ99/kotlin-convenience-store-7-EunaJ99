@@ -42,11 +42,11 @@ class Controller(private val view: View) {
     }
 
     private fun processProductInput(selection: String): ArrayList<RequiredProduct> {
-        val chopSelection = processer.chopInputWithComma(selection)
+        val chopSelection = processer.chopWithComma(selection)
         chopSelection.forEach {
             validator.isSelectionFormatted(it)
         }
-        val selectedProducts = processer.processRequirement(selection)
+        val selectedProducts = processer.processSelection(selection)
         return selectedProducts
     }
 
@@ -54,7 +54,7 @@ class Controller(private val view: View) {
         val foundRequirements = storage.findMultipleProducts(requirements)
         validator.isProductExists(foundRequirements)
         for (i in 0..requirements.lastIndex) {
-            validator.isQuantityEnough(storage.findQuantity(foundRequirements[i].productNumber), requirements[i].quantity)
+            validator.isStockEnough(storage.findQuantity(foundRequirements[i].productNumber), requirements[i].quantity)
         }
         return foundRequirements
     }
@@ -93,8 +93,8 @@ class Controller(private val view: View) {
 
     private fun askOffer(name: String, toRequire: Int): Boolean {
         val answer = view.giveawayOffer(name, toRequire)
-        validator.answerCheck(answer)
-        return answer == "Y" || answer == "y"
+        validator.isYorN(answer)
+        return answer == "Y"
     }
 
     private fun promoCoverage(required: RequiredProduct): Pair<Int, Int> {
@@ -121,8 +121,8 @@ class Controller(private val view: View) {
 
     private fun askPromoNotCovered(name: String, excess: Int): Boolean {
         val answer = view.notFreeNotice(name, excess)
-        validator.answerCheck(answer)
-        return answer == "Y" || answer == "y"
+        validator.isYorN(answer)
+        return answer == "Y"
     }
 
     // 영수증에 들어갈 정보 취합 및 계산
@@ -166,7 +166,7 @@ class Controller(private val view: View) {
 
     private fun askMembership(): Boolean {
         val answer = view.membershipDiscount()
-        validator.answerCheck(answer)
-        return answer == "Y" || answer == "y"
+        validator.isYorN(answer)
+        return answer == "Y"
     }
 }

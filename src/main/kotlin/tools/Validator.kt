@@ -18,15 +18,16 @@ class Validator {
         }
     }
 
-    fun isQuantityEnough(foundQuantity: Int, requiredQuantity: Int) {
-        if (requiredQuantity > foundQuantity) {
+    fun isStockEnough(required: Int, stock: Int) {
+        if (stock > required) {
             throw IllegalArgumentException(ErrorMessage.PRODUCT_NOT_ENOUGH.getMessage())
         }
     }
 
-    fun answerCheck(answer: String) {
-        val acceptedAnswer = listOf("Y", "N", "y", "n")
-        if (!acceptedAnswer.contains(answer)) {
+    fun isYorN(answer: String) {
+        val upperAnswer = answer.uppercase()
+        val acceptedAnswer = listOf("Y", "N")
+        if (!acceptedAnswer.contains(upperAnswer)) {
             throw IllegalArgumentException(ErrorMessage.INPUT_SOMETHING_WRONG.getMessage())
         }
     }

@@ -15,7 +15,7 @@ class PromotionSystem {
 
     private fun splitPromotionInfo(rawPromotions: ArrayList<String>) {
         for (i in 1..rawPromotions.lastIndex) {
-            val chopped = Processer().chopInputWithComma(rawPromotions[i])
+            val chopped = Processer().chopWithComma(rawPromotions[i])
             promotionLedger.add(PromotionInfo(chopped[0], chopped[1].toInt(), chopped[2].toInt(), chopped[3], chopped[4]))
         }
         promotionLedger.add(PromotionInfo("", 0, 0, "2000-01-01", "2000-01-02"))
