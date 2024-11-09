@@ -36,12 +36,12 @@ class Controller(private val view: View) {
         storage.openStorage()
         val ledger = storage.getLedger()
         val selection = view.welcomeCustomer(ledger)
-        val products = understandInput(selection)
-        val productFound = checkStocks(products)
+        val products = processProductInput(selection)
+        val productFound = findProducts(products)
         return productFound
     }
 
-    private fun understandInput(selection: String): ArrayList<RequiredProduct> {
+    private fun processProductInput(selection: String): ArrayList<RequiredProduct> {
         val chopSelection = processer.chopInputWithComma(selection)
         chopSelection.forEach {
             validator.isSelectionFormatted(it)
@@ -50,7 +50,7 @@ class Controller(private val view: View) {
         return selectedProducts
     }
 
-    private fun checkStocks(requirements: ArrayList<RequiredProduct>): ArrayList<RequiredProduct> {
+    private fun findProducts(requirements: ArrayList<RequiredProduct>): ArrayList<RequiredProduct> {
         val foundRequirements = storage.findMultipleProducts(requirements)
         validator.isProductExists(foundRequirements)
         for (i in 0..requirements.lastIndex) {
@@ -72,13 +72,13 @@ class Controller(private val view: View) {
     private fun giveawayOffer(request: RequiredProduct): Int {
         val ledger = storage.getLedger()
         val toRequire = promotionSystem.giveawayRequest(ledger[request.productNumber].promotion, request.quantity, ledger[request.productNumber].quantity)
-        if (toRequire == 0 || !acceptOrNot(ledger[request.productNumber].name, toRequire)) {
+        if (toRequire == 0 || !getFreeOrNot(ledger[request.productNumber].name, toRequire)) {
             return 0
         }
         return toRequire
     }
 
-    private fun acceptOrNot(name: String, toRequire: Int): Boolean {
+    private fun getFreeOrNot(name: String, toRequire: Int): Boolean {
         var answer: Boolean
         while (true) {
             try {
@@ -100,17 +100,17 @@ class Controller(private val view: View) {
     private fun promoCoverage(required: RequiredProduct): Pair<Int, Int> {
         val product = storage.getLedger()[required.productNumber]
         val freesAndNots = promotionSystem.checkPromotionCoverage(product.promotion, required.quantity, product.quantity)
-        if (freesAndNots.second != 0 && !regularOrNot(required.name, freesAndNots.second)) {
+        if (freesAndNots.second != 0 && !buyRegularOrNot(required.name, freesAndNots.second)) {
             return Pair(freesAndNots.first, -freesAndNots.second)
         }
         return freesAndNots
     }
 
-    private fun regularOrNot(name: String, excess: Int): Boolean {
+    private fun buyRegularOrNot(name: String, excess: Int): Boolean {
         var answer: Boolean
         while (true) {
             try {
-                answer = askNotFree(name, excess)
+                answer = askPromoNotCovered(name, excess)
                 break
             } catch (e: IllegalArgumentException) {
                 println(e.message)
@@ -119,7 +119,7 @@ class Controller(private val view: View) {
         return answer
     }
 
-    private fun askNotFree(name: String, excess: Int): Boolean {
+    private fun askPromoNotCovered(name: String, excess: Int): Boolean {
         val answer = view.notFreeNotice(name, excess)
         validator.answerCheck(answer)
         return answer == "Y" || answer == "y"
@@ -128,7 +128,7 @@ class Controller(private val view: View) {
     // 영수증에 들어갈 정보 취합 및 계산
     private fun calculate(request: ArrayList<RequiredProduct>, counter: Counter) {
         for (i in 0..request.lastIndex) {
-            priceSet(request[i], i, counter)
+            setPrice(request[i], i, counter)
         }
         val receiptInfo = counter.totalNumbers(request)
         receiptInfo.membership = membership(receiptInfo.totalPrice, counter)
@@ -136,7 +136,7 @@ class Controller(private val view: View) {
         view.receipt(receiptInfo)
     }
 
-    private fun priceSet(required: RequiredProduct, index: Int, counter: Counter) {
+    private fun setPrice(required: RequiredProduct, index: Int, counter: Counter) {
         val product = storage.getLedger()[required.productNumber]
         val price = product.price.replace(",", "")
         counter.setPrice(index, price.toInt())
