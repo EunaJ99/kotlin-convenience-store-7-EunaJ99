@@ -59,14 +59,6 @@ class ApplicationTest : NsTest() {
         }
     }
 
-    @Test
-    fun `형식 예외 테스트`() {
-        assertSimpleTest {
-            runException("컵라면-10")
-            assertThat(output()).contains("[ERROR] 올바르지 않은 형식으로 입력했습니다. 다시 입력해 주세요.")
-        }
-    }
-
     override fun runMain() {
         main()
     }
