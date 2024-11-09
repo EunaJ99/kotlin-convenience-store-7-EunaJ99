@@ -1,25 +1,23 @@
 package store
 
-import tools.Processer
-
 class Counter(productCount: Int) {
-    private val freeCount = ArrayList<Int>()
-    private val notFreeCount = ArrayList<Int>()
+    private val freeProducts = ArrayList<Int>()
+    private val regularProducts = ArrayList<Int>()
     private val prices = ArrayList<Int>()
 
     init {
         for (i in 1..productCount) {
-            freeCount.add(0)
-            notFreeCount.add(0)
+            freeProducts.add(0)
+            regularProducts.add(0)
             prices.add(0)
         }
     }
 
-    fun promotionEnroll(totalRequest: Int, free: Int, correction: Int, productNumber: Int) {
-        freeCount[productNumber] += free
-        notFreeCount[productNumber] += (totalRequest - free)
+    fun enrollProducts(totalRequest: Int, free: Int, correction: Int, productNumber: Int) {
+        freeProducts[productNumber] += free
+        regularProducts[productNumber] += (totalRequest - free)
         if (correction < 0) {
-            notFreeCount[productNumber] += correction
+            regularProducts[productNumber] += correction
         }
     }
 
@@ -27,25 +25,25 @@ class Counter(productCount: Int) {
         prices[index] += price
     }
 
-    fun totalNumbers(request: ArrayList<RequiredProduct>): ReceiptInfo {
+    fun writeReceipt(request: ArrayList<RequiredProduct>): ReceiptInfo {
         var receiptInfo = ReceiptInfo()
         for (i in 0..request.lastIndex) {
-            val singleProductInfo = totalProductInfo(request[i], i)
-            receiptInfo = accumulateReceiptInfo(receiptInfo, singleProductInfo)
+            val productReceipt = productValues(request[i], i)
+            receiptInfo = mergeProductInfo(receiptInfo, productReceipt)
         }
         receiptInfo.priceToPay = receiptInfo.totalPrice - receiptInfo.totalDiscount
         return receiptInfo
     }
 
-    private fun totalProductInfo(request: RequiredProduct, index: Int): ProductFinalInfo {
-        val totalItems = freeCount[index] + notFreeCount[index]
-        val totalPrice = totalItems * prices[index]
-        val freeItems = freeCount[index]
-        val discount = freeItems * prices[index]
-        return ProductFinalInfo(request.name, totalItems, totalPrice, freeItems, discount)
+    private fun productValues(request: RequiredProduct, index: Int): ProductFinalInfo {
+        val totalCount = freeProducts[index] + regularProducts[index]
+        val totalPrice = totalCount * prices[index]
+        val freeCount = freeProducts[index]
+        val discount = freeCount * prices[index]
+        return ProductFinalInfo(request.name, totalCount, totalPrice, freeCount, discount)
     }
 
-    private fun accumulateReceiptInfo(receiptInfo: ReceiptInfo, singleProductInfo: ProductFinalInfo): ReceiptInfo {
+    private fun mergeProductInfo(receiptInfo: ReceiptInfo, singleProductInfo: ProductFinalInfo): ReceiptInfo {
         receiptInfo.products.add(singleProductInfo)
         receiptInfo.totalQuantity += singleProductInfo.quantity
         receiptInfo.totalPrice += singleProductInfo.price

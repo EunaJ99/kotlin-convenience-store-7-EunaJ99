@@ -65,7 +65,7 @@ class Controller(private val view: View) {
         for (i in 0..request.lastIndex) {
             request[i].quantity += giveawayOffer(request[i])
             val freesAndNots = promoCoverage(request[i])
-            counter.promotionEnroll(request[i].quantity, freesAndNots.first, freesAndNots.second, i)
+            counter.enrollProducts(request[i].quantity, freesAndNots.first, freesAndNots.second, i)
         }
     }
 
@@ -130,7 +130,7 @@ class Controller(private val view: View) {
         for (i in 0..request.lastIndex) {
             setPrice(request[i], i, counter)
         }
-        val receiptInfo = counter.totalNumbers(request)
+        val receiptInfo = counter.writeReceipt(request)
         receiptInfo.membership = membership(receiptInfo.totalPrice, counter)
         receiptInfo.totalPrice -= receiptInfo.membership
         view.receipt(receiptInfo)
