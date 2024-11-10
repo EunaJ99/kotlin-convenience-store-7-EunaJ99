@@ -5,13 +5,14 @@ import tools.Processer
 import tools.Validator
 import view.View
 
-class Controller(private val view: View) {
+class Controller {
+    private val view = View()
     private val storage = Storage()
     private val promotionSystem = PromotionSystem()
     private val validator = Validator()
     private val processer = Processer()
 
-    fun runBusiness() {
+    fun start() {
         storage.openStorage()
         while (true) {
             val products = openShop()

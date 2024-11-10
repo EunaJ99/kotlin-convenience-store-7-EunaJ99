@@ -1,17 +1,11 @@
 package view
 
-import controller.Controller
 import store.ProductInfo
 import store.ReceiptInfo
 
 class View {
     private val inputView = InputView()
     private val outputView = OutputView()
-    private val controller = Controller(this)
-
-    fun start() {
-        controller.runBusiness()
-    }
 
     fun welcomeCustomer(productLedger: ArrayList<ProductInfo>): String {
         outputView.printGreetings()
