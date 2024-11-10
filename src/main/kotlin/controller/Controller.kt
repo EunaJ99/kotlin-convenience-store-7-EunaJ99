@@ -94,7 +94,7 @@ class Controller(private val view: View) {
     private fun askOffer(name: String, toRequire: Int): Boolean {
         val answer = view.giveawayOffer(name, toRequire)
         validator.isYorN(answer)
-        return answer == "Y"
+        return answer == "Y" || answer == "y"
     }
 
     private fun promoCoverage(required: RequiredProduct): Pair<Int, Int> {
@@ -122,7 +122,7 @@ class Controller(private val view: View) {
     private fun askPromoNotCovered(name: String, excess: Int): Boolean {
         val answer = view.notFreeNotice(name, excess)
         validator.isYorN(answer)
-        return answer == "Y"
+        return answer == "Y" || answer == "y"
     }
 
     // 영수증에 들어갈 정보 취합 및 계산
@@ -130,9 +130,8 @@ class Controller(private val view: View) {
         for (i in 0..request.lastIndex) {
             setPrice(request[i], i, counter)
         }
-        val receiptInfo = counter.writeReceipt(request)
-        receiptInfo.membership = membership(receiptInfo.totalPrice, counter)
-        receiptInfo.totalPrice -= receiptInfo.membership
+        var receiptInfo = counter.writeReceipt(request)
+        receiptInfo = membership(receiptInfo, counter)
         view.receipt(receiptInfo)
     }
 
@@ -143,12 +142,12 @@ class Controller(private val view: View) {
     }
 
     // 멤버십 할인 적용
-    private fun membership(total: Int, counter: Counter): Int {
-        var discount = 0
+    private fun membership(receiptInfo: ReceiptInfo, counter: Counter): ReceiptInfo {
+        var info = receiptInfo
         if (membershipOrNot()) {
-            discount = counter.membershipDiscount(total)
+            info = counter.membershipDiscount(receiptInfo)
         }
-        return discount
+        return info
     }
 
     private fun membershipOrNot(): Boolean {
@@ -167,6 +166,7 @@ class Controller(private val view: View) {
     private fun askMembership(): Boolean {
         val answer = view.membershipDiscount()
         validator.isYorN(answer)
-        return answer == "Y"
+        println(answer == "Y")
+        return answer == "Y" || answer == "y"
     }
 }

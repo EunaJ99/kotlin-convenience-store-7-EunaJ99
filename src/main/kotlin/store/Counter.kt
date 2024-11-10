@@ -51,11 +51,13 @@ class Counter(productCount: Int) {
         return receiptInfo
     }
 
-    fun membershipDiscount(total: Int): Int {
-        var newTotal = (total * 0.2).toInt()
-        if (newTotal > 8000) {
-            newTotal = 8000
+    fun membershipDiscount(receiptInfo: ReceiptInfo): ReceiptInfo {
+        var discount = (receiptInfo.totalPrice * 0.2).toInt()
+        if (discount > 8000) {
+            discount = 8000
         }
-        return newTotal
+        receiptInfo.membership = discount
+        receiptInfo.totalDiscount -= discount
+        return receiptInfo
     }
 }
