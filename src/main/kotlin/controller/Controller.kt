@@ -12,10 +12,16 @@ class Controller(private val view: View) {
     private val processer = Processer()
 
     fun runBusiness() {
-        val products = openShop()
-        val counter = Counter(products.size)
-        promotion(products, counter)
-        calculate(products, counter)
+        storage.openStorage()
+        while (true) {
+            val products = openShop()
+            val counter = Counter(products.size)
+            promotion(products, counter)
+            calculate(products, counter)
+            if (!goOn()) {
+                break
+            }
+        }
     }
 
     // 초기 안내 및 재고 출력, 구매 리스트 수령 및 검증
@@ -33,7 +39,6 @@ class Controller(private val view: View) {
     }
 
     private fun getOrder(): ArrayList<RequiredProduct> {
-        storage.openStorage()
         val ledger = storage.getLedger()
         val selection = view.welcomeCustomer(ledger)
         val products = processProductInput(selection)
@@ -129,6 +134,7 @@ class Controller(private val view: View) {
     private fun calculate(request: ArrayList<RequiredProduct>, counter: Counter) {
         for (i in 0..request.lastIndex) {
             setPrice(request[i], i, counter)
+            storage.sellProduct(request[i].productNumber, request[i].quantity)
         }
         var receiptInfo = counter.writeReceipt(request)
         receiptInfo = membership(receiptInfo, counter)
@@ -166,7 +172,13 @@ class Controller(private val view: View) {
     private fun askMembership(): Boolean {
         val answer = view.membershipDiscount()
         validator.isYorN(answer)
-        println(answer == "Y")
+        return answer == "Y" || answer == "y"
+    }
+
+    // 계속할 것인가?
+    private fun goOn(): Boolean {
+        val answer = view.startOver()
+        validator.isYorN(answer)
         return answer == "Y" || answer == "y"
     }
 }

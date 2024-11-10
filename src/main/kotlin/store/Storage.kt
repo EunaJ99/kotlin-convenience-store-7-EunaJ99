@@ -91,4 +91,8 @@ class Storage {
         }
         return quantity
     }
+
+    fun sellProduct(index: Int, correction: Int) {
+        productLedger[index].quantity -= correction
+    }
 }

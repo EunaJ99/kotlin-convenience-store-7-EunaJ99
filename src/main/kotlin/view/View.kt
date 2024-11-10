@@ -38,4 +38,9 @@ class View {
     fun receipt(receiptInfo: ReceiptInfo) {
         outputView.printReceipt(receiptInfo)
     }
+
+    fun startOver(): String {
+        val answer = inputView.readIsContinue()
+        return answer
+    }
 }

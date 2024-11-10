@@ -30,6 +30,13 @@ class InputView {
         return input
     }
 
+    fun readIsContinue(): String {
+        println()
+        println(START_ALL_OVER)
+        val input = Console.readLine()
+        return input
+    }
+
     companion object {
         const val SELECT_ITEM = "구매하실 상품명과 수량을 입력해 주세요."
         const val PROMOTION_NEED = "현재 %s은(는) %d개를 무료로 더 받을 수 있습니다. 추가하시겠습니까? (Y/N)"
