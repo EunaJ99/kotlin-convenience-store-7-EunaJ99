@@ -93,6 +93,12 @@ class Storage {
     }
 
     fun sellProduct(index: Int, correction: Int) {
+        if (productLedger[index].quantity < correction) {
+            val temp = productLedger[index].quantity
+            productLedger[index].quantity = 0
+            productLedger[index + 1].quantity -= (correction - temp)
+            return
+        }
         productLedger[index].quantity -= correction
     }
 }
