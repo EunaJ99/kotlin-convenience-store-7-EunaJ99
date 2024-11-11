@@ -2,7 +2,6 @@ package store
 
 import tools.Processer
 import tools.Reader
-import java.text.DecimalFormat
 
 class Storage {
     private val productLedger = ArrayList<ProductInfo>()
